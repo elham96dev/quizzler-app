@@ -30,17 +30,30 @@ class QuizList {
         true),
   ];
 
+  /// 👉 Move to next question
   void nextQuestion() {
     if (_questionNumber < _questionBank.length - 1) {
       _questionNumber++;
     }
   }
 
+  /// 👉 Question text
   String getQuestionText() {
     return _questionBank[_questionNumber].questionText;
   }
 
+  /// 👉 Correct answer
   bool getQuestionAnswer() {
     return _questionBank[_questionNumber].questionAnswer;
+  }
+
+  /// ✅ CHECK IF QUIZ IS FINISHED
+  bool isFinished() {
+    return _questionNumber >= _questionBank.length - 1;
+  }
+
+  /// ✅ RESET QUIZ
+  void reset() {
+    _questionNumber = 0;
   }
 }
