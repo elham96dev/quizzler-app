@@ -56,4 +56,8 @@ class QuizList {
   void reset() {
     _questionNumber = 0;
   }
+
+  int getQuestionCount() {
+    return _questionBank.length;
+  }
 }

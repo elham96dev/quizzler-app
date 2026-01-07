@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quizzler/result_page.dart';
 
 import 'main.dart';
 
@@ -11,11 +12,19 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   final List<Icon> scoreKeeper = [];
+  int trueCount = 0;
+  int falseCount = 0;
 
   void checkAnswer(bool userChoice) {
     final bool correctAnswer = quizList.getQuestionAnswer();
 
     setState(() {
+      if (userChoice == correctAnswer) {
+        trueCount++; // ✅ increment correct answers
+      } else {
+        falseCount++; // ✅ increment wrong answers
+      }
+
       scoreKeeper.add(
         Icon(
           userChoice == correctAnswer ? Icons.check : Icons.close,
@@ -35,27 +44,47 @@ class _QuizPageState extends State<QuizPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Quiz Finished'),
         content: const Text('What would you like to do?'),
         actions: [
           TextButton(
-            child: const Text('Cancel'),
+            child: const Text('Result'),
             onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                quizList.reset();
-                scoreKeeper.clear();
+              // 1️⃣ Close dialog
+              Navigator.pop(dialogContext);
+
+              // 2️⃣ Navigate with CORRECT values
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ResultPage(
+                    trueCount: trueCount,
+                    falseCount: falseCount,
+                    avgCount: calculateAvg(
+                        trueCount, falseCount, quizList.getQuestionCount()),
+                  ),
+                ),
+              ).then((_) {
+                // 3️⃣ Reset AFTER returning
+                setState(() {
+                  quizList.reset();
+                  scoreKeeper.clear();
+                  trueCount = 0;
+                  falseCount = 0;
+                });
               });
             },
           ),
           TextButton(
             child: const Text('Restart'),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               setState(() {
                 quizList.reset();
                 scoreKeeper.clear();
+                trueCount = 0;
+                falseCount = 0;
               });
             },
           ),
@@ -126,4 +155,9 @@ class _QuizPageState extends State<QuizPage> {
       ],
     );
   }
+}
+
+double calculateAvg(int trueCount, int falseCount, int totalCount) {
+  double avg = (trueCount - falseCount) / totalCount;
+  return double.parse(avg.toStringAsFixed(1));
 }
